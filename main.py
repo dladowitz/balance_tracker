@@ -1,5 +1,15 @@
 import os
 import mintapi
+import psycopg2
+import datetime
+
+try:
+    conn = psycopg2.connect("dbname='finances' user='davidladowitz' host='localhost' password=''")
+    cur = conn.cursor()
+    print "Connected to database"
+except:
+    print "I am unable to connect to the database"
+
 
 print "Welcome to the Balance Tracker App"
 
@@ -30,8 +40,17 @@ for account in accounts:
     print("Type: %(type)s" % locals())
     print("Mint ID: %(mintId)s" % locals())
     print "-----------------------------------"
+    cur.execute("INSERT INTO account_balances(account_name, vendor_name, balance, mint_account_id, type, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s, %s)", (accountName, vendorName, balance, mintId, type, datetime.datetime.now(), datetime.datetime.now()) )
 
 print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+print("Writing to database")
+conn.commit()
+cur.close()
+conn.close()
+
+print("Goodbye")
+
 # account format
 # {
 #   'closeDateInDate': datetime.datetime(2017, 2, 14, 22, 12, 40),
