@@ -1,3 +1,3 @@
-launchd_sterr.log
-launchd_stout.log
+launchd_stderr.log
+launchd_stdout.log
 bash.log
