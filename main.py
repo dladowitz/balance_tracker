@@ -1,3 +1,5 @@
+print "Welcome to the Balance Tracker App"
+
 import os
 import mintapi
 import psycopg2
@@ -11,10 +13,10 @@ except:
     print "I am unable to connect to the database"
 
 
-print "Welcome to the Balance Tracker App"
 
 print "Logging in to Mint.com"
 mint = mintapi.Mint(os.environ['MINT_EMAIL'], os.environ['MINT_PASSWORD'])
+print "Logged in successfully"
 
 print "Getting account balances"
 accounts = mint.get_accounts()
