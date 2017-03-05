@@ -1,3 +1,5 @@
 launchd_stderr.log
 launchd_stdout.log
 bash.log
+views/database_connection/accounts.R
+accounts.R
