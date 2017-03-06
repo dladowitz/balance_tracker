@@ -3,3 +3,5 @@ launchd_stdout.log
 bash.log
 views/database_connection/accounts.R
 accounts.R
+.Rhistory
+.RData
