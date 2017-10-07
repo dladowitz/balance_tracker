@@ -51,7 +51,7 @@ investment.query = "SELECT SUM(balance) AS daily_total,
 bank.query = "SELECT SUM(balance) AS daily_total,
   date_trunc('day', created_at) AS date
   FROM account_balances
-  WHERE type = 'bank' or type = 'other property'
+  WHERE type in ('bank', 'other property')
   AND mint_account_id IN (6763680, 6763682, 6788381, 6763681,6763683, 7162800 )
   GROUP BY date_trunc('day', created_at)
   ORDER BY 2"
@@ -59,17 +59,40 @@ bank.query = "SELECT SUM(balance) AS daily_total,
 debt.query= "SELECT SUM(balance) AS daily_total,
   date_trunc('day', created_at) AS date
   FROM account_balances
-  WHERE type = 'loan' or type = 'credit'
+  WHERE type in ('loan', 'credit')
   AND mint_account_id IN (7160389, 7198409, 7198408, 7003470)
   GROUP BY date_trunc('day', created_at)
   ORDER BY 2"
 
+
+networth.query = "-- Networth
+  SELECT sum(daily_total) AS daily_total, date
+  FROM 
+    (
+      SELECT SUM(balance) as daily_total, date_trunc('day', created_at) AS date
+      FROM account_balances
+      WHERE type IN ('investment', 'bank', 'other property')
+      AND mint_account_id IN (7180182, 3228223, 3228221, 3228222, 6763680, 6763682, 6788381, 6763681,6763683, 7162800)
+      GROUP BY date_trunc('day', created_at)
+      
+    UNION
+
+      SELECT (SUM(balance) * -1) AS daily_total,
+      date_trunc('day', created_at) AS date
+      FROM account_balances
+      WHERE type in ('loan', 'credit')
+      AND mint_account_id IN (7160389, 7198409, 7198408, 7003470)
+      GROUP BY date_trunc('day', created_at)
+    ) as active_accounts
+  GROUP BY 2
+  ORDER BY 2"
+
+
+
 investments <- dbGetQuery(con, investment.query)
 bank.accounts <- dbGetQuery(con, bank.query)
 debts <- dbGetQuery(con, debt.query)
-print(summary(investments))
-
-
+networth <- dbGetQuery(con, networth.query)
 
 
 # Create Plot
@@ -77,13 +100,18 @@ investment.plot <- ggplot(data = investments, aes(x = date, y = daily_total))
 investment.plot <- investment.plot + geom_line() + geom_point(size = 2) + labs(title = "Investments")
 print(investment.plot)
 
-bank.plot <- ggplot(data = bank.accounts, aes(x = date, y = daily_total))
-bank.plot <- bank.plot + geom_line() + geom_point(size = 2) + labs(title = "Investments")
-print(bank.plot)
+# bank.plot <- ggplot(data = bank.accounts, aes(x = date, y = daily_total))
+# bank.plot <- bank.plot + geom_line() + geom_point(size = 2) + labs(title = "Bank Accounts")
+# print(bank.plot)
 
-debt.plot <- ggplot(data = debts, aes(x = date, y = daily_total))
-debt.plot <- debt.plot + geom_line() + geom_point(size = 2) + labs(title = "Investments")
-print(debt.plot)
+# debt.plot <- ggplot(data = debts, aes(x = date, y = daily_total))
+# debt.plot <- debt.plot + geom_line() + geom_point(size = 2) + labs(title = "Debts")
+# print(debt.plot)
+
+
+networth.plot <- ggplot(data = networth, aes(x = date, y = daily_total))
+networth.plot <- networth.plot + geom_line() + geom_point(size = 2) + labs(title = "distance")
+print(networth.plot)
 
 
 
